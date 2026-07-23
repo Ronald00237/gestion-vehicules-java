@@ -1,4 +1,4 @@
-package com.ronald.fleetops.System.api;
+package com.ronald.fleetops.system.api;
 
 import com.ronald.fleetops.system.api.SystemStatusController;
 import org.junit.jupiter.api.Test;
