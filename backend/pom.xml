@@ -12,7 +12,7 @@
 	<artifactId>fleetops-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>FleetOps Backend</name>
-	<description>Backend API for the FleetOps fleet managment platform</description>
+	<description>Backend API for the FleetOps fleet management platform</description>
 	<url/>
 	<licenses>
 		<license/>
