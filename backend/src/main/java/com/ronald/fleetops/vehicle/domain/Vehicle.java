@@ -107,4 +107,28 @@ public class Vehicle {
     public VehicleStatus getStatus(){
          return this.status;
     }
+
+    public void unassign(){
+         if(status == VehicleStatus.ASSIGNED){
+             status = VehicleStatus.AVAILABLE;
+         }else{
+             throw new IllegalArgumentException("Only assigned vehicles can be unassigned");
+         }
+    }
+
+    public void sendToMaintenance(){
+         if(status == VehicleStatus.AVAILABLE){
+             status = VehicleStatus.IN_MAINTENANCE;
+         }else{
+             throw new IllegalArgumentException("Only available vehicles can be sent to maintenance");
+         }
+    }
+
+    public void completeMaintenance(){
+         if(status == VehicleStatus.IN_MAINTENANCE){
+             status = VehicleStatus.AVAILABLE;
+         }else{
+             throw new IllegalArgumentException("Only vehicles in maintenance can complete maintenance");
+        }
+    }
 }

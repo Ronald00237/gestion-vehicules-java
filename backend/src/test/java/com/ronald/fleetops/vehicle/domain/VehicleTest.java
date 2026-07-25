@@ -281,4 +281,107 @@ public class VehicleTest {
             assertEquals("Only available vehicles can be assigned", exception.getMessage());
         }
     }
+
+    @Test
+    public void shouldUnassignAssignedVehicle(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        vehicle.assign();
+        vehicle.unassign();
+        assertEquals(VehicleStatus.AVAILABLE, vehicle.getStatus());
+    }
+
+    @Test
+    public void shouldRejectUnassignmentWhenVehicleIsNotAssigned(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+
+        try{
+            vehicle.unassign();
+            fail("une exception doit etre lancee");
+        } catch (IllegalArgumentException exception){
+            assertEquals("Only assigned vehicles can be unassigned", exception.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldSendAvailableVehicleToMaintenance(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        vehicle.sendToMaintenance();
+        assertEquals(VehicleStatus.IN_MAINTENANCE, vehicle.getStatus());
+    }
+
+    @Test
+    public void shouldRejectMaintenanceWhenVehicleIsNotAvailable(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+                vehicle.assign();
+        try{
+            vehicle.sendToMaintenance();
+            fail("une exception doit etre lancee");
+        } catch (IllegalArgumentException exception){
+            assertEquals("Only available vehicles can be sent to maintenance", exception.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldCompleteVehicleMaintenance(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        vehicle.sendToMaintenance();
+        vehicle.completeMaintenance();
+        assertEquals(VehicleStatus.AVAILABLE, vehicle.getStatus());
+
+    }
+
+    @Test
+    public void shouldRejectMaintenanceCompletionWhenVehicleIsNotInMaintenance(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        assertEquals(VehicleStatus.AVAILABLE, vehicle.getStatus());
+
+        try{
+            vehicle.completeMaintenance();
+            fail("une exception doit etre lancee");
+        } catch (IllegalArgumentException exception){
+            assertEquals("Only vehicles in maintenance can complete maintenance", exception.getMessage());
+        }
+    }
 }
