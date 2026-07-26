@@ -384,4 +384,86 @@ public class VehicleTest {
             assertEquals("Only vehicles in maintenance can complete maintenance", exception.getMessage());
         }
     }
+
+
+    @Test
+    public void shouldMarkAvailableVehicleOutOfService(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+              vehicle.markOutOfService();
+        assertEquals(VehicleStatus.OUT_OF_SERVICE, vehicle.getStatus());
+    }
+
+    @Test
+    public void shouldRejectOutOfServiceWhenVehicleIsAssigned(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+                vehicle.assign();
+        try {
+            vehicle.markOutOfService();
+            fail("Une exception doit etre lancee");
+        } catch(IllegalArgumentException exception){
+            assertEquals("Only available vehicles or vehicles in maintenance can be marked out of service",exception.getMessage());
+        }
+    }
+    @Test
+    public void shouldMarkVehicleInMaintenanceOutOfService(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        vehicle.sendToMaintenance();
+        vehicle.markOutOfService();
+        assertEquals(VehicleStatus.OUT_OF_SERVICE, vehicle.getStatus());
+    }
+
+    @Test
+    public  void shouldRejectRetirementWhenVehicleIsNotOutOfService(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        assertEquals(VehicleStatus.AVAILABLE,vehicle.getStatus());
+
+        try{
+            vehicle.retire();
+            fail("Une exception doit etre lancee");
+        } catch(IllegalArgumentException exeption) {
+            assertEquals("Only out-of-service vehicles can be retired", exeption.getMessage());
+        }
+    }
+    @Test
+    public void shouldRetireOutOfServiceVehicle(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        vehicle.markOutOfService();
+        vehicle.retire();
+        assertEquals(VehicleStatus.RETIRED,vehicle.getStatus());
+    }
 }

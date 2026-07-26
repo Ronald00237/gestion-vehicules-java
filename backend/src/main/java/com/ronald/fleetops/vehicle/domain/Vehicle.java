@@ -131,4 +131,20 @@ public class Vehicle {
              throw new IllegalArgumentException("Only vehicles in maintenance can complete maintenance");
         }
     }
+
+    public void markOutOfService(){
+         if(status == VehicleStatus.AVAILABLE || status == VehicleStatus.IN_MAINTENANCE){
+             status = VehicleStatus.OUT_OF_SERVICE;
+         } else{
+             throw new IllegalArgumentException("Only available vehicles or vehicles in maintenance can be marked out of service");
+         }
+    }
+
+    public void retire(){
+         if(status == VehicleStatus.OUT_OF_SERVICE){
+             status = VehicleStatus.RETIRED;
+         } else {
+             throw new IllegalArgumentException("Only out-of-service vehicles can be retired");
+         }
+    }
 }
