@@ -15,14 +15,17 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/vehicles")
 public class VehicleController {
+
     private final VehicleService vehicleService;
 
-    public VehicleController(VehicleService vehicleService){
+    public VehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody CreateVehicleRequest request){
+    public ResponseEntity<VehicleResponse> createVehicle(
+            @Valid @RequestBody CreateVehicleRequest request
+    ) {
         Vehicle vehicle = new Vehicle(
                 request.vin(),
                 request.licensePlate(),
@@ -31,31 +34,40 @@ public class VehicleController {
                 request.manufacturingYear(),
                 request.mileageInKilometers(),
                 request.type(),
-                request.fuelType());
+                request.fuelType()
+        );
 
         Vehicle registeredVehicle = vehicleService.registerVehicle(vehicle);
-        VehicleResponse response = VehicleResponse.from((registeredVehicle));
+        VehicleResponse response = VehicleResponse.from(registeredVehicle);
 
-        return  ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping
-    public  ResponseEntity<List<VehicleResponse>> findAllVehicles(){
+    public ResponseEntity<List<VehicleResponse>> findAllVehicles() {
         List<Vehicle> vehicles = vehicleService.findAllVehicles();
         List<VehicleResponse> responses = new ArrayList<>();
 
-        for (Vehicle vehicle: vehicles){
+        for (Vehicle vehicle : vehicles) {
             responses.add(VehicleResponse.from(vehicle));
         }
-        return  ResponseEntity.ok(responses);
+
+        return ResponseEntity.ok(responses);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<VehicleResponse> findVehicleById(
-            @PathVariable UUID id) {
+            @PathVariable UUID id
+    ) {
         Optional<Vehicle> foundVehicle =
                 vehicleService.findVehicleById(id);
+
         if (foundVehicle.isEmpty()) {
             return ResponseEntity.notFound().build();
-         }
-        return ResponseEntity.ok(VehicleResponse.from(foundVehicle.get()));
+        }
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(foundVehicle.get())
+        );
     }
 }
