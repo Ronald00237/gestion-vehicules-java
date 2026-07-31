@@ -1,16 +1,17 @@
 package com.ronald.fleetops.vehicle.api;
 
 import com.ronald.fleetops.vehicle.application.service.VehicleService;
-import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
-import com.ronald.fleetops.vehicle.domain.VehicleType;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/vehicles")
 public class VehicleController {
@@ -36,5 +37,25 @@ public class VehicleController {
         VehicleResponse response = VehicleResponse.from((registeredVehicle));
 
         return  ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    @GetMapping
+    public  ResponseEntity<List<VehicleResponse>> findAllVehicles(){
+        List<Vehicle> vehicles = vehicleService.findAllVehicles();
+        List<VehicleResponse> responses = new ArrayList<>();
+
+        for (Vehicle vehicle: vehicles){
+            responses.add(VehicleResponse.from(vehicle));
+        }
+        return  ResponseEntity.ok(responses);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<VehicleResponse> findVehicleById(
+            @PathVariable UUID id) {
+        Optional<Vehicle> foundVehicle =
+                vehicleService.findVehicleById(id);
+        if (foundVehicle.isEmpty()) {
+            return ResponseEntity.notFound().build();
+         }
+        return ResponseEntity.ok(VehicleResponse.from(foundVehicle.get()));
     }
 }
