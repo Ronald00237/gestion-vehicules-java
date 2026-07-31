@@ -140,4 +140,40 @@ public class VehicleControllerTest {
                 )
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void shouldReturnConflictWhenVinAlreadyExists() throws Exception {
+        String json = """
+            {
+              "vin": "DUPLICATE-VIN-001",
+              "licensePlate": "DUPLICATE-PLATE-001",
+              "brand": "Toyota",
+              "model": "Corolla",
+              "manufacturingYear": 2020,
+              "mileageInKilometers": 84446,
+              "type": "SEDAN",
+              "fuelType": "GASOLINE"
+            }
+            """;
+
+        mockMvc.perform(
+                        post("/api/v1/vehicles")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(
+                        post("/api/v1/vehicles")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value(
+                        "A vehicle with VIN DUPLICATE-VIN-001 already exists"
+                ))
+                .andExpect(jsonPath("$.path").value("/api/v1/vehicles"));
+    }
 }
