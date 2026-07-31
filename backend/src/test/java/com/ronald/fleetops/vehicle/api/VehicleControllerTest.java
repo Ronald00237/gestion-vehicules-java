@@ -176,4 +176,45 @@ public class VehicleControllerTest {
                 ))
                 .andExpect(jsonPath("$.path").value("/api/v1/vehicles"));
     }
+
+    @Test
+    public void shouldReturnBadRequestWhenVehicleDataIsInvalid()
+            throws Exception {
+
+        String json = """
+            {
+              "vin": "",
+              "licensePlate": "VALID-PLATE",
+              "brand": "",
+              "model": "Corolla",
+              "manufacturingYear": 1800,
+              "mileageInKilometers": -1,
+              "type": null,
+              "fuelType": null
+            }
+            """;
+
+        mockMvc.perform(
+                        post("/api/v1/vehicles")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message")
+                        .value("Request validation failed"))
+                .andExpect(jsonPath("$.fieldErrors.vin").exists())
+                .andExpect(jsonPath("$.fieldErrors.brand").exists())
+                .andExpect(jsonPath(
+                        "$.fieldErrors.manufacturingYear"
+                ).exists())
+                .andExpect(jsonPath(
+                        "$.fieldErrors.mileageInKilometers"
+                ).exists())
+                .andExpect(jsonPath("$.fieldErrors.type").exists())
+                .andExpect(jsonPath("$.fieldErrors.fuelType").exists())
+                .andExpect(jsonPath("$.path")
+                        .value("/api/v1/vehicles"));
+    }
 }
