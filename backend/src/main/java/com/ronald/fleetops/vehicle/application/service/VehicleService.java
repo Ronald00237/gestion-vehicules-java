@@ -1,5 +1,5 @@
 package com.ronald.fleetops.vehicle.application.service;
-
+import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
 import com.ronald.fleetops.vehicle.application.port.VehicleRepository;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
 import org.jspecify.annotations.NonNull;
@@ -17,7 +17,7 @@ public class VehicleService {
         public Vehicle registerVehicle(@NonNull Vehicle vehicle){
             Optional<Vehicle> foundVehicle = vehicleRepository.findByVin(vehicle.getVin());
             if(foundVehicle.isPresent()){
-               throw new IllegalArgumentException("A vehicle with this VIN already exists");
+               throw new DuplicateVehicleVinException(vehicle.getVin());
             }
             return vehicleRepository.save(vehicle);
         }
