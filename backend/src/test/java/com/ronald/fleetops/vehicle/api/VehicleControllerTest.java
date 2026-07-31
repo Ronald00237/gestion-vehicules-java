@@ -129,16 +129,23 @@ public class VehicleControllerTest {
                         .value("GET-PLATE-001"))
                 .andExpect(jsonPath("$.status").value("AVAILABLE"));
     }
-
     @Test
     public void shouldReturnNotFoundWhenVehicleIdDoesNotExist()
             throws Exception {
+
         UUID unknownId = UUID.randomUUID();
 
         mockMvc.perform(
-                        get("/api/v1/vehicles/{id}", unknownId)
+                        get("/api/v1/vehicles/" + unknownId)
                 )
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value(
+                        "Vehicle not found with id " + unknownId))
+                .andExpect(jsonPath("$.path").value(
+                        "/api/v1/vehicles/" + unknownId
+                ));
     }
 
     @Test

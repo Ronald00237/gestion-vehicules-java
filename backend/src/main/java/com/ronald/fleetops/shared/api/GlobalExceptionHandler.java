@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
+import com.ronald.fleetops.vehicle.application.exception.VehicleNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.Map;
     @RestControllerAdvice
@@ -57,6 +57,23 @@ import java.util.Map;
                             fieldErrors,
                             request.getRequestURI()
                     );
+
+            return ResponseEntity.status(status).body(response);
+        }
+
+        @ExceptionHandler(VehicleNotFoundException.class)
+        public ResponseEntity<ApiErrorResponse> handleVehicleNotFound(
+                VehicleNotFoundException exception,
+                HttpServletRequest request
+        ) {
+            HttpStatus status = HttpStatus.NOT_FOUND;
+
+            ApiErrorResponse response = new ApiErrorResponse(
+                    status.value(),
+                    status.getReasonPhrase(),
+                    exception.getMessage(),
+                    request.getRequestURI()
+            );
 
             return ResponseEntity.status(status).body(response);
         }
