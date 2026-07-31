@@ -1,5 +1,6 @@
 package com.ronald.fleetops.vehicle.api;
 
+import com.ronald.fleetops.vehicle.application.exception.VehicleNotFoundException;
 import com.ronald.fleetops.vehicle.application.service.VehicleService;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
 import jakarta.validation.Valid;
@@ -63,7 +64,7 @@ public class VehicleController {
                 vehicleService.findVehicleById(id);
 
         if (foundVehicle.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new VehicleNotFoundException(id);
         }
 
         return ResponseEntity.ok(
