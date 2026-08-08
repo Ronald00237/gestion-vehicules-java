@@ -466,4 +466,241 @@ public class VehicleTest {
         vehicle.retire();
         assertEquals(VehicleStatus.RETIRED,vehicle.getStatus());
     }
+    @Test
+    public void shouldUpdateVehicleDetails() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "OHVHI",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicle.updateDetails(
+                "XYZ789",
+                "Honda",
+                "Civic",
+                2022,
+                90000L,
+                VehicleType.SEDAN,
+                FuelType.HYBRID
+        );
+
+        assertEquals("ABCD", vehicle.getVin());
+        assertEquals("XYZ789", vehicle.getLicensePlate());
+        assertEquals("Honda", vehicle.getBrand());
+        assertEquals("Civic", vehicle.getModel());
+        assertEquals(2022, vehicle.getManufacturingYear());
+        assertEquals(90000L, vehicle.getMileageInKilometers());
+        assertEquals(VehicleType.SEDAN, vehicle.getType());
+        assertEquals(FuelType.HYBRID, vehicle.getFuelType());
+        assertEquals(VehicleStatus.AVAILABLE, vehicle.getStatus());
+    }
+
+    @Test
+    public void shouldRejectMileageLowerThanCurrentMileageWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        "Honda",
+                        "Civic",
+                        2022,
+                        80000L,
+                        VehicleType.SEDAN,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals(
+                "Mileage must not be lower than current mileage",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    public void shouldRejectBlankLicensePlateWhenUpdating(){
+        Vehicle vehicle = new Vehicle("ABCD",
+                "ABCD123",
+                "Toyota",
+                "Corolla",
+                2020,
+                8444L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE);
+        IllegalArgumentException exception= assertThrows(IllegalArgumentException.class,() ->vehicle.updateDetails(" ",
+                "Honda","Civic",
+                2022,
+                90000L,
+                 VehicleType.SEDAN,
+                FuelType.HYBRID));
+
+        assertEquals("License plate must not be blank", exception.getMessage());
+    }
+    @Test
+    public void shouldRejectBlankBrandWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        " ",
+                        "Civic",
+                        2022,
+                        90000L,
+                        VehicleType.SEDAN,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals("Brand must not be blank", exception.getMessage());
+    }
+
+    @Test
+    public void shouldRejectBlankModelWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        "Honda",
+                        " ",
+                        2022,
+                        90000L,
+                        VehicleType.SEDAN,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals("Model must not be blank", exception.getMessage());
+    }
+
+    @Test
+    public void shouldRejectInvalidManufacturingYearWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        "Honda",
+                        "Civic",
+                        1885,
+                        90000L,
+                        VehicleType.SEDAN,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals(
+                "Manufacturing year is invalid",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    public void shouldRejectNullVehicleTypeWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        "Honda",
+                        "Civic",
+                        2022,
+                        90000L,
+                        null,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals(
+                "Vehicle type must not be null",
+                exception.getMessage()
+        );
+    }
+    @Test
+    public void shouldRejectNullFuelTypeWhenUpdating() {
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicle.updateDetails(
+                        "XYZ789",
+                        "Honda",
+                        "Civic",
+                        2022,
+                        90000L,
+                        VehicleType.SEDAN,
+                        null
+                )
+        );
+
+        assertEquals(
+                "Fuel type must not be null",
+                exception.getMessage()
+        );
+    }
 }

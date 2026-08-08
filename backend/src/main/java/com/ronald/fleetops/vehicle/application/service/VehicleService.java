@@ -1,7 +1,9 @@
 package com.ronald.fleetops.vehicle.application.service;
 import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
 import com.ronald.fleetops.vehicle.application.port.VehicleRepository;
+import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
+import com.ronald.fleetops.vehicle.domain.VehicleType;
 import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.Optional;
@@ -28,5 +30,35 @@ public class VehicleService {
         public List<Vehicle> findAllVehicles(){
             return vehicleRepository.findAll();
         }
+
+    public Vehicle updateVehicle(
+            UUID id,
+            String licensePlate,
+            String brand,
+            String model,
+            int manufacturingYear,
+            long mileageInKilometers,
+            VehicleType type,
+            FuelType fuelType) {
+
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Vehicle with ID " + id + " was not found"
+                        )
+                );
+
+        vehicle.updateDetails(
+                licensePlate,
+                brand,
+                model,
+                manufacturingYear,
+                mileageInKilometers,
+                type,
+                fuelType
+        );
+
+        return vehicleRepository.save(vehicle);
+    }
 
     }

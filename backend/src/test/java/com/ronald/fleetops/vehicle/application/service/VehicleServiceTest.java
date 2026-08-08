@@ -117,4 +117,47 @@ public class VehicleServiceTest {
             Optional<Vehicle> foundVehicle = vehicleService.findVehicleById(UUID.randomUUID());
             assertTrue(foundVehicle.isEmpty());
     }
+    @Test
+    public void shouldUpdateVehicle() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "ABCD",
+                "ABC123",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        Vehicle updatedVehicle = vehicleService.updateVehicle(
+                registeredVehicle.getId(),
+                "XYZ789",
+                "Honda",
+                "Civic",
+                2022,
+                90000L,
+                VehicleType.SEDAN,
+                FuelType.HYBRID
+        );
+
+        assertSame(registeredVehicle, updatedVehicle);
+        assertEquals("ABCD", updatedVehicle.getVin());
+        assertEquals("XYZ789", updatedVehicle.getLicensePlate());
+        assertEquals("Honda", updatedVehicle.getBrand());
+        assertEquals("Civic", updatedVehicle.getModel());
+        assertEquals(2022, updatedVehicle.getManufacturingYear());
+        assertEquals(90000L, updatedVehicle.getMileageInKilometers());
+        assertEquals(VehicleType.SEDAN, updatedVehicle.getType());
+        assertEquals(FuelType.HYBRID, updatedVehicle.getFuelType());
+    }
 }

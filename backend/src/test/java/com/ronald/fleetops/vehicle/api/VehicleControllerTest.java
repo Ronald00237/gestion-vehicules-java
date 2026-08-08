@@ -224,4 +224,5 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.path")
                         .value("/api/v1/vehicles"));
     }
+
 }
