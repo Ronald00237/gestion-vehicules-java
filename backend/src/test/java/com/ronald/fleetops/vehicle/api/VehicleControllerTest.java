@@ -355,4 +355,6 @@ public class VehicleControllerTest {
                         "/api/v1/vehicles/" + vehicle.getId()
                 ));
     }
+    
+
 }
