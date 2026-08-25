@@ -71,4 +71,25 @@ public class VehicleController {
                 VehicleResponse.from(foundVehicle.get())
         );
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<VehicleResponse> updateVehicle(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateVehicleRequest request
+    ) {
+        Vehicle updatedVehicle = vehicleService.updateVehicle(
+                id,
+                request.licensePlate(),
+                request.brand(),
+                request.model(),
+                request.manufacturingYear(),
+                request.mileageInKilometers(),
+                request.type(),
+                request.fuelType()
+        );
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(updatedVehicle)
+        );
+    }
+
 }

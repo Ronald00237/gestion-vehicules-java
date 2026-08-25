@@ -1,5 +1,6 @@
 package com.ronald.fleetops.vehicle.application.service;
 import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
+import com.ronald.fleetops.vehicle.application.exception.VehicleNotFoundException;
 import com.ronald.fleetops.vehicle.application.port.VehicleRepository;
 import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
@@ -43,9 +44,8 @@ public class VehicleService {
 
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Vehicle with ID " + id + " was not found"
-                        )
+                        new VehicleNotFoundException(id)
+
                 );
 
         vehicle.updateDetails(

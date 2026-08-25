@@ -1,5 +1,5 @@
 package com.ronald.fleetops.vehicle.api;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import com.ronald.fleetops.vehicle.application.service.VehicleService;
 import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
@@ -224,5 +224,135 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.path")
                         .value("/api/v1/vehicles"));
     }
+    @Test
+    public void shouldUpdateVehicle() throws Exception {
+        Vehicle vehicle = new Vehicle(
+                "UPDATE-VIN-001",
+                "OLD-PLATE",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
 
+        vehicleService.registerVehicle(vehicle);
+
+        String json = """
+            {
+              "licensePlate": "NEW-PLATE",
+              "brand": "Honda",
+              "model": "Civic",
+              "manufacturingYear": 2022,
+              "mileageInKilometers": 90000,
+              "type": "SEDAN",
+              "fuelType": "HYBRID"
+            }
+            """;
+
+        mockMvc.perform(
+                        put("/api/v1/vehicles/{id}", vehicle.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(vehicle.getId().toString()))
+                .andExpect(jsonPath("$.vin").value("UPDATE-VIN-001"))
+                .andExpect(jsonPath("$.licensePlate").value("NEW-PLATE"))
+                .andExpect(jsonPath("$.brand").value("Honda"))
+                .andExpect(jsonPath("$.model").value("Civic"))
+                .andExpect(jsonPath("$.manufacturingYear").value(2022))
+                .andExpect(jsonPath("$.mileageInKilometers").value(90000))
+                .andExpect(jsonPath("$.type").value("SEDAN"))
+                .andExpect(jsonPath("$.fuelType").value("HYBRID"));
+    }
+    @Test
+    public void shouldReturnNotFoundWhenUpdatingUnknownVehicle()
+            throws Exception {
+
+        UUID unknownId = UUID.randomUUID();
+
+        String json = """
+            {
+              "licensePlate": "NEW-PLATE",
+              "brand": "Honda",
+              "model": "Civic",
+              "manufacturingYear": 2022,
+              "mileageInKilometers": 90000,
+              "type": "SEDAN",
+              "fuelType": "HYBRID"
+            }
+            """;
+
+        mockMvc.perform(
+                        put("/api/v1/vehicles/{id}", unknownId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value(
+                        "Vehicle not found with id " + unknownId
+                ))
+                .andExpect(jsonPath("$.path").value(
+                        "/api/v1/vehicles/" + unknownId
+                ));
+    }
+    @Test
+    public void shouldReturnBadRequestWhenUpdateDataIsInvalid()
+            throws Exception {
+
+        Vehicle vehicle = new Vehicle(
+                "VALIDATION-VIN-001",
+                "OLD-PLATE",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicleService.registerVehicle(vehicle);
+
+        String json = """
+            {
+              "licensePlate": "",
+              "brand": "",
+              "model": "",
+              "manufacturingYear": 1800,
+              "mileageInKilometers": -1,
+              "type": null,
+              "fuelType": null
+            }
+            """;
+
+        mockMvc.perform(
+                        put("/api/v1/vehicles/{id}", vehicle.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message")
+                        .value("Request validation failed"))
+                .andExpect(jsonPath("$.fieldErrors.licensePlate").exists())
+                .andExpect(jsonPath("$.fieldErrors.brand").exists())
+                .andExpect(jsonPath("$.fieldErrors.model").exists())
+                .andExpect(jsonPath(
+                        "$.fieldErrors.manufacturingYear"
+                ).exists())
+                .andExpect(jsonPath(
+                        "$.fieldErrors.mileageInKilometers"
+                ).exists())
+                .andExpect(jsonPath("$.fieldErrors.type").exists())
+                .andExpect(jsonPath("$.fieldErrors.fuelType").exists())
+                .andExpect(jsonPath("$.path").value(
+                        "/api/v1/vehicles/" + vehicle.getId()
+                ));
+    }
 }

@@ -1,16 +1,16 @@
 package com.ronald.fleetops.vehicle.application.service;
 import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
+import com.ronald.fleetops.vehicle.application.exception.VehicleNotFoundException;
 import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
 import com.ronald.fleetops.vehicle.domain.VehicleType;
 import com.ronald.fleetops.vehicle.infrastructure.persistence.InMemoryVehicleRepository;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Optional;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class VehicleServiceTest {
@@ -159,5 +159,34 @@ public class VehicleServiceTest {
         assertEquals(90000L, updatedVehicle.getMileageInKilometers());
         assertEquals(VehicleType.SEDAN, updatedVehicle.getType());
         assertEquals(FuelType.HYBRID, updatedVehicle.getFuelType());
+    }
+    @Test
+    public void shouldThrowExceptionWhenUpdatingUnknownVehicle() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        UUID unknownId = UUID.randomUUID();
+
+        VehicleNotFoundException exception = assertThrows(
+                VehicleNotFoundException.class,
+                () -> vehicleService.updateVehicle(
+                        unknownId,
+                        "XYZ789",
+                        "Honda",
+                        "Civic",
+                        2022,
+                        90000L,
+                        VehicleType.SEDAN,
+                        FuelType.HYBRID
+                )
+        );
+
+        assertEquals(
+                "Vehicle not found with id " + unknownId,
+                exception.getMessage()
+        );
     }
 }
