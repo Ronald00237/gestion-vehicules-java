@@ -1,6 +1,5 @@
 package com.ronald.fleetops.vehicle.domain;
 
-import java.rmi.server.UID;
 import java.util.UUID;
 import java.time.Year;
 
@@ -146,5 +145,52 @@ public class Vehicle {
          } else {
              throw new IllegalArgumentException("Only out-of-service vehicles can be retired");
          }
+    }
+    public void updateDetails(
+            String licensePlate,
+            String brand,
+            String model,
+            int manufacturingYear,
+            long mileageInKilometers,
+            VehicleType type,
+            FuelType fuelType) {
+
+         if(fuelType == null){
+             throw  new IllegalArgumentException("Fuel type must not be null");
+         }
+
+         if(type == null){
+             throw new IllegalArgumentException("Vehicle type must not be null");
+         }
+
+         int currentYear = Year.now().getValue();
+
+         if(manufacturingYear < 1886 || manufacturingYear > currentYear +1 ){
+             throw  new IllegalArgumentException("Manufacturing year is invalid");
+         }
+
+         if(model == null || model.isBlank()){
+             throw new IllegalArgumentException("Model must not be blank");
+         }
+
+         if(brand == null || brand.isBlank()){
+             throw new IllegalArgumentException("Brand must not be blank");
+         }
+
+         if(licensePlate == null || licensePlate.isBlank()){
+             throw new IllegalArgumentException("License plate must not be blank");
+         }
+
+         if(mileageInKilometers < this.mileageInKilometers){
+             throw new IllegalArgumentException("Mileage must not be lower than current mileage");
+         }
+
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.manufacturingYear = manufacturingYear;
+        this.mileageInKilometers = mileageInKilometers;
+        this.type = type;
+        this.fuelType = fuelType;
     }
 }
