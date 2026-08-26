@@ -91,5 +91,50 @@ public class VehicleController {
                 VehicleResponse.from(updatedVehicle)
         );
     }
+    @PatchMapping("/{id}/maintenance")
+    public ResponseEntity<VehicleResponse> sendVehicleToMaintenance(
+            @PathVariable UUID id
+    ) {
+        Vehicle updatedVehicle =
+                vehicleService.sendVehicleToMaintenance(id);
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(updatedVehicle)
+        );
+    }
+    @PatchMapping("/{id}/maintenance/complete")
+    public ResponseEntity<VehicleResponse> completeVehicleMaintenance(
+            @PathVariable UUID id
+    ) {
+        Vehicle updatedVehicle =
+                vehicleService.completeVehicleMaintenance(id);
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(updatedVehicle)
+        );
+    }
+
+    @PatchMapping("/{id}/out-of-service")
+    public ResponseEntity<VehicleResponse> markVehicleOutOfService(
+            @PathVariable UUID id
+    ) {
+        Vehicle updatedVehicle =
+                vehicleService.markVehicleOutOfService(id);
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(updatedVehicle)
+        );
+    }
+    @PatchMapping("/{id}/retire")
+    public ResponseEntity<VehicleResponse> retireVehicle(
+            @PathVariable UUID id
+    ) {
+        Vehicle updatedVehicle =
+                vehicleService.retireVehicle(id);
+
+        return ResponseEntity.ok(
+                VehicleResponse.from(updatedVehicle)
+        );
+    }
 
 }

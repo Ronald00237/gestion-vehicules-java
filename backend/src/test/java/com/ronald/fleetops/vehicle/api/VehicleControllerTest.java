@@ -11,7 +11,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -355,6 +355,175 @@ public class VehicleControllerTest {
                         "/api/v1/vehicles/" + vehicle.getId()
                 ));
     }
-    
+    @Test
+    public void shouldSendVehicleToMaintenance() throws Exception {
+        Vehicle vehicle = new Vehicle(
+                "API-MAINTENANCE-VIN-001",
+                "API-MAINTENANCE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
 
+        vehicleService.registerVehicle(vehicle);
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/maintenance",
+                                vehicle.getId()
+                        )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(vehicle.getId().toString()))
+                .andExpect(jsonPath("$.status")
+                        .value("IN_MAINTENANCE"));
+    }
+    @Test
+    public void shouldCompleteVehicleMaintenance() throws Exception {
+        Vehicle vehicle = new Vehicle(
+                "API-COMPLETE-MAINTENANCE-VIN-001",
+                "API-COMPLETE-MAINTENANCE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicleService.registerVehicle(vehicle);
+        vehicleService.sendVehicleToMaintenance(vehicle.getId());
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/maintenance/complete",
+                                vehicle.getId()
+                        )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(vehicle.getId().toString()))
+                .andExpect(jsonPath("$.status")
+                        .value("AVAILABLE"));
+    }
+    @Test
+    public void shouldMarkVehicleOutOfService() throws Exception {
+        Vehicle vehicle = new Vehicle(
+                "API-OUT-OF-SERVICE-VIN-001",
+                "API-OUT-OF-SERVICE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicleService.registerVehicle(vehicle);
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/out-of-service",
+                                vehicle.getId()
+                        )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(vehicle.getId().toString()))
+                .andExpect(jsonPath("$.status")
+                        .value("OUT_OF_SERVICE"));
+    }
+    @Test
+    public void shouldRetireVehicle() throws Exception {
+        Vehicle vehicle = new Vehicle(
+                "API-RETIRED-VIN-001",
+                "API-RETIRED-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicleService.registerVehicle(vehicle);
+        vehicleService.markVehicleOutOfService(vehicle.getId());
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/retire",
+                                vehicle.getId()
+                        )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(vehicle.getId().toString()))
+                .andExpect(jsonPath("$.status")
+                        .value("RETIRED"));
+    }
+
+    @Test
+    public void shouldReturnConflictWhenRetiringAvailableVehicle()
+            throws Exception {
+
+        Vehicle vehicle = new Vehicle(
+                "API-INVALID-RETIRE-VIN-001",
+                "API-INVALID-RETIRE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        vehicleService.registerVehicle(vehicle);
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/retire",
+                                vehicle.getId()
+                        )
+                )
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value(
+                        "Only out-of-service vehicles can be retired"
+                ))
+                .andExpect(jsonPath("$.path").value(
+                        "/api/v1/vehicles/" +
+                                vehicle.getId() +
+                                "/retire"
+                ));
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenSendingUnknownVehicleToMaintenance()
+            throws Exception {
+
+        UUID unknownId = UUID.randomUUID();
+
+        mockMvc.perform(
+                        patch(
+                                "/api/v1/vehicles/{id}/maintenance",
+                                unknownId
+                        )
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value(
+                        "Vehicle not found with id " + unknownId
+                ))
+                .andExpect(jsonPath("$.path").value(
+                        "/api/v1/vehicles/" +
+                                unknownId +
+                                "/maintenance"
+                ));
+    }
 }
