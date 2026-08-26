@@ -1,5 +1,5 @@
 package com.ronald.fleetops.shared.api;
-
+import com.ronald.fleetops.vehicle.domain.InvalidVehicleStatusTransitionException;
 import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -67,6 +67,23 @@ import java.util.Map;
                 HttpServletRequest request
         ) {
             HttpStatus status = HttpStatus.NOT_FOUND;
+
+            ApiErrorResponse response = new ApiErrorResponse(
+                    status.value(),
+                    status.getReasonPhrase(),
+                    exception.getMessage(),
+                    request.getRequestURI()
+            );
+
+            return ResponseEntity.status(status).body(response);
+        }
+        @ExceptionHandler(InvalidVehicleStatusTransitionException.class)
+        public ResponseEntity<ApiErrorResponse>
+        handleInvalidVehicleStatusTransition(
+                InvalidVehicleStatusTransitionException exception,
+                HttpServletRequest request
+        ) {
+            HttpStatus status = HttpStatus.CONFLICT;
 
             ApiErrorResponse response = new ApiErrorResponse(
                     status.value(),

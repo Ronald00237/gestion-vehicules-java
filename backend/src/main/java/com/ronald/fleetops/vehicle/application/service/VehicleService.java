@@ -60,5 +60,39 @@ public class VehicleService {
 
         return vehicleRepository.save(vehicle);
     }
+            public Vehicle sendVehicleToMaintenance(UUID id) {
+                Vehicle vehicle = vehicleRepository.findById(id)
+                        .orElseThrow(() -> new VehicleNotFoundException(id));
 
+                vehicle.sendToMaintenance();
+
+                return vehicleRepository.save(vehicle);
+            }
+    public Vehicle completeVehicleMaintenance(UUID id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        vehicle.completeMaintenance();
+
+        return vehicleRepository.save(vehicle);
     }
+
+    public Vehicle markVehicleOutOfService(UUID id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        vehicle.markOutOfService();
+
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle retireVehicle(UUID id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        vehicle.retire();
+
+        return vehicleRepository.save(vehicle);
+        }
+
+}

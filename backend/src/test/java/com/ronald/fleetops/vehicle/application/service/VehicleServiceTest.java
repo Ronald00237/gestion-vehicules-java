@@ -6,7 +6,7 @@ import com.ronald.fleetops.vehicle.domain.Vehicle;
 import com.ronald.fleetops.vehicle.domain.VehicleType;
 import com.ronald.fleetops.vehicle.infrastructure.persistence.InMemoryVehicleRepository;
 import org.junit.jupiter.api.Test;
-
+import com.ronald.fleetops.vehicle.domain.VehicleStatus;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -189,4 +189,320 @@ public class VehicleServiceTest {
                 exception.getMessage()
         );
     }
+    @Test
+    public void shouldSendVehicleToMaintenance() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "MAINTENANCE-VIN-001",
+                "MAINTENANCE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        Vehicle updatedVehicle =
+                vehicleService.sendVehicleToMaintenance(
+                        registeredVehicle.getId()
+                );
+
+        assertSame(registeredVehicle, updatedVehicle);
+        assertEquals(
+                VehicleStatus.IN_MAINTENANCE,
+                updatedVehicle.getStatus()
+        );
+
+        Vehicle savedVehicle = repository
+                .findById(registeredVehicle.getId())
+                .orElseThrow();
+
+        assertEquals(
+                VehicleStatus.IN_MAINTENANCE,
+                savedVehicle.getStatus()
+        );
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenSendingUnknownVehicleToMaintenance() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        UUID unknownId = UUID.randomUUID();
+
+        VehicleNotFoundException exception = assertThrows(
+                VehicleNotFoundException.class,
+                () -> vehicleService.sendVehicleToMaintenance(unknownId)
+        );
+
+        assertEquals(
+                "Vehicle not found with id " + unknownId,
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    public void shouldCompleteVehicleMaintenance() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "COMPLETE-MAINTENANCE-VIN-001",
+                "COMPLETE-MAINTENANCE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        vehicleService.sendVehicleToMaintenance(
+                registeredVehicle.getId()
+        );
+
+        Vehicle updatedVehicle =
+                vehicleService.completeVehicleMaintenance(
+                        registeredVehicle.getId()
+                );
+
+        assertSame(registeredVehicle, updatedVehicle);
+        assertEquals(
+                VehicleStatus.AVAILABLE,
+                updatedVehicle.getStatus()
+        );
+
+        Vehicle savedVehicle = repository
+                .findById(registeredVehicle.getId())
+                .orElseThrow();
+
+        assertEquals(
+                VehicleStatus.AVAILABLE,
+                savedVehicle.getStatus()
+        );
+    }
+
+    @Test
+    public void shouldRejectCompletingMaintenanceForAvailableVehicle() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "INVALID-COMPLETE-VIN-001",
+                "INVALID-COMPLETE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicleService.completeVehicleMaintenance(
+                        registeredVehicle.getId()
+                )
+        );
+
+        assertEquals(
+                "Only vehicles in maintenance can complete maintenance",
+                exception.getMessage()
+        );
+
+        assertEquals(
+                VehicleStatus.AVAILABLE,
+                registeredVehicle.getStatus()
+        );
+    }
+    @Test
+    public void shouldMarkVehicleOutOfService() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "OUT-OF-SERVICE-VIN-001",
+                "OUT-OF-SERVICE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        Vehicle updatedVehicle =
+                vehicleService.markVehicleOutOfService(
+                        registeredVehicle.getId()
+                );
+
+        assertSame(registeredVehicle, updatedVehicle);
+        assertEquals(
+                VehicleStatus.OUT_OF_SERVICE,
+                updatedVehicle.getStatus()
+        );
+
+        Vehicle savedVehicle = repository
+                .findById(registeredVehicle.getId())
+                .orElseThrow();
+
+        assertEquals(
+                VehicleStatus.OUT_OF_SERVICE,
+                savedVehicle.getStatus()
+        );
+    }
+
+    @Test
+    public void shouldMarkVehicleInMaintenanceOutOfService() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "MAINTENANCE-OUT-VIN-001",
+                "MAINTENANCE-OUT-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        vehicleService.sendVehicleToMaintenance(
+                registeredVehicle.getId()
+        );
+
+        Vehicle updatedVehicle =
+                vehicleService.markVehicleOutOfService(
+                        registeredVehicle.getId()
+                );
+
+        assertEquals(
+                VehicleStatus.OUT_OF_SERVICE,
+                updatedVehicle.getStatus()
+        );
+    }
+    @Test
+    public void shouldRetireVehicle() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "RETIRED-VIN-001",
+                "RETIRED-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        vehicleService.markVehicleOutOfService(
+                registeredVehicle.getId()
+        );
+
+        Vehicle updatedVehicle =
+                vehicleService.retireVehicle(
+                        registeredVehicle.getId()
+                );
+
+        assertSame(registeredVehicle, updatedVehicle);
+        assertEquals(
+                VehicleStatus.RETIRED,
+                updatedVehicle.getStatus()
+        );
+
+        Vehicle savedVehicle = repository
+                .findById(registeredVehicle.getId())
+                .orElseThrow();
+
+        assertEquals(
+                VehicleStatus.RETIRED,
+                savedVehicle.getStatus()
+        );
+    }
+
+    @Test
+    public void shouldRejectRetiringAvailableVehicle() {
+        InMemoryVehicleRepository repository =
+                new InMemoryVehicleRepository();
+
+        VehicleService vehicleService =
+                new VehicleService(repository);
+
+        Vehicle vehicle = new Vehicle(
+                "INVALID-RETIRE-VIN-001",
+                "INVALID-RETIRE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                84446L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE
+        );
+
+        Vehicle registeredVehicle =
+                vehicleService.registerVehicle(vehicle);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> vehicleService.retireVehicle(
+                        registeredVehicle.getId()
+                )
+        );
+
+        assertEquals(
+                "Only out-of-service vehicles can be retired",
+                exception.getMessage()
+        );
+
+        assertEquals(
+                VehicleStatus.AVAILABLE,
+                registeredVehicle.getStatus()
+        );
+    }
+
 }

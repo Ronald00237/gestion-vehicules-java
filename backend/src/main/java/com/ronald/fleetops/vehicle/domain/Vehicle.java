@@ -64,7 +64,7 @@ public class Vehicle {
          if(status == VehicleStatus.AVAILABLE){
              status = VehicleStatus.ASSIGNED;
          }else {
-             throw new IllegalArgumentException("Only available vehicles can be assigned");
+             throw new InvalidVehicleStatusTransitionException("Only available vehicles can be assigned");
          }
      }
 
@@ -111,7 +111,7 @@ public class Vehicle {
          if(status == VehicleStatus.ASSIGNED){
              status = VehicleStatus.AVAILABLE;
          }else{
-             throw new IllegalArgumentException("Only assigned vehicles can be unassigned");
+             throw new InvalidVehicleStatusTransitionException("Only assigned vehicles can be unassigned");
          }
     }
 
@@ -119,7 +119,7 @@ public class Vehicle {
          if(status == VehicleStatus.AVAILABLE){
              status = VehicleStatus.IN_MAINTENANCE;
          }else{
-             throw new IllegalArgumentException("Only available vehicles can be sent to maintenance");
+             throw new InvalidVehicleStatusTransitionException("Only available vehicles can be sent to maintenance");
          }
     }
 
@@ -127,7 +127,7 @@ public class Vehicle {
          if(status == VehicleStatus.IN_MAINTENANCE){
              status = VehicleStatus.AVAILABLE;
          }else{
-             throw new IllegalArgumentException("Only vehicles in maintenance can complete maintenance");
+             throw new InvalidVehicleStatusTransitionException("Only vehicles in maintenance can complete maintenance");
         }
     }
 
@@ -135,7 +135,7 @@ public class Vehicle {
          if(status == VehicleStatus.AVAILABLE || status == VehicleStatus.IN_MAINTENANCE){
              status = VehicleStatus.OUT_OF_SERVICE;
          } else{
-             throw new IllegalArgumentException("Only available vehicles or vehicles in maintenance can be marked out of service");
+             throw new InvalidVehicleStatusTransitionException("Only available vehicles or vehicles in maintenance can be marked out of service");
          }
     }
 
@@ -143,7 +143,7 @@ public class Vehicle {
          if(status == VehicleStatus.OUT_OF_SERVICE){
              status = VehicleStatus.RETIRED;
          } else {
-             throw new IllegalArgumentException("Only out-of-service vehicles can be retired");
+             throw new InvalidVehicleStatusTransitionException("Only out-of-service vehicles can be retired");
          }
     }
     public void updateDetails(
