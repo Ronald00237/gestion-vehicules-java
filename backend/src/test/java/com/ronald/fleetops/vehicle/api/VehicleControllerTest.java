@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
+import com.ronald.fleetops.vehicle.infrastructure.persistence.jpa.SpringDataVehicleJpaRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import java.util.UUID;
@@ -21,9 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(
-        classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD
-)
 public class VehicleControllerTest {
 
     @Autowired
@@ -31,6 +29,14 @@ public class VehicleControllerTest {
 
     @Autowired
     private VehicleService vehicleService;
+
+    @Autowired
+    private SpringDataVehicleJpaRepository jpaRepository;
+
+    @BeforeEach
+    public void cleanDatabase() {
+        jpaRepository.deleteAll();
+    }
 
     @Test
     public void shouldCreateVehicle() throws Exception {
