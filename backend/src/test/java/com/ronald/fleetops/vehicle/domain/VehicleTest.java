@@ -3,11 +3,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
-
+import java.util.UUID;
 import java.time.Year;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class VehicleTest {
 
     @Test
@@ -700,6 +701,83 @@ public class VehicleTest {
 
         assertEquals(
                 "Fuel type must not be null",
+                exception.getMessage()
+        );
+    }
+    @Test
+    public void shouldRestorePersistedVehicleWithItsIdentityAndStatus() {
+        UUID persistedId = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.restore(
+                persistedId,
+                "RESTORE-VIN-001",
+                "RESTORE-PLATE-001",
+                "Toyota",
+                "Corolla",
+                2020,
+                85000L,
+                VehicleType.SEDAN,
+                FuelType.GASOLINE,
+                VehicleStatus.IN_MAINTENANCE
+        );
+
+        assertEquals(persistedId, vehicle.getId());
+        assertEquals("RESTORE-VIN-001", vehicle.getVin());
+        assertEquals("RESTORE-PLATE-001", vehicle.getLicensePlate());
+        assertEquals("Toyota", vehicle.getBrand());
+        assertEquals("Corolla", vehicle.getModel());
+        assertEquals(2020, vehicle.getManufacturingYear());
+        assertEquals(85000L, vehicle.getMileageInKilometers());
+        assertEquals(VehicleType.SEDAN, vehicle.getType());
+        assertEquals(FuelType.GASOLINE, vehicle.getFuelType());
+        assertEquals(
+                VehicleStatus.IN_MAINTENANCE,
+                vehicle.getStatus()
+        );
+    }
+    @Test
+    public void shouldRejectNullIdWhenRestoringVehicle() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Vehicle.restore(
+                        null,
+                        "RESTORE-VIN-002",
+                        "RESTORE-PLATE-002",
+                        "Honda",
+                        "Civic",
+                        2021,
+                        50000L,
+                        VehicleType.SEDAN,
+                        FuelType.GASOLINE,
+                        VehicleStatus.AVAILABLE
+                )
+        );
+
+        assertEquals(
+                "Vehicle id must not be null",
+                exception.getMessage()
+        );
+    }
+    @Test
+    public void shouldRejectNullStatusWhenRestoringVehicle() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Vehicle.restore(
+                        UUID.randomUUID(),
+                        "RESTORE-VIN-003",
+                        "RESTORE-PLATE-003",
+                        "Honda",
+                        "Civic",
+                        2021,
+                        50000L,
+                        VehicleType.SEDAN,
+                        FuelType.GASOLINE,
+                        null
+                )
+        );
+
+        assertEquals(
+                "Vehicle status must not be null",
                 exception.getMessage()
         );
     }

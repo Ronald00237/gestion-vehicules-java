@@ -15,14 +15,47 @@ public class Vehicle {
    private FuelType fuelType;
    private VehicleStatus status = VehicleStatus.AVAILABLE;
 
-     public Vehicle(String vin,
-                    String licensePlate,
-                    String brand,
-                    String model,
-                    int manufacturingYear,
-                    long mileageInKilometers,
-                    VehicleType type,
-                    FuelType fuelType) {
+    public Vehicle(
+            String vin,
+            String licensePlate,
+            String brand,
+            String model,
+            int manufacturingYear,
+            long mileageInKilometers,
+            VehicleType type,
+            FuelType fuelType
+    ) {
+        this(
+                UUID.randomUUID(),
+                vin,
+                licensePlate,
+                brand,
+                model,
+                manufacturingYear,
+                mileageInKilometers,
+                type,
+                fuelType,
+                VehicleStatus.AVAILABLE
+        );
+    }
+
+    private Vehicle(
+            UUID id,
+            String vin,
+            String licensePlate,
+            String brand,
+            String model,
+            int manufacturingYear,
+            long mileageInKilometers,
+            VehicleType type,
+            FuelType fuelType,
+            VehicleStatus status
+    ) {
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Vehicle id must not be null"
+            );
+        }
          if(vin == null || vin.isBlank()){
              throw new IllegalArgumentException("VIN must not be blank");
          }
@@ -49,7 +82,13 @@ public class Vehicle {
          if(manufacturingYear < 1886 || manufacturingYear > currentYear +1 ){
              throw new IllegalArgumentException("Manufacturing year is invalid");
          }
-         this.id = UUID.randomUUID();
+        if (status == null) {
+            throw new IllegalArgumentException(
+                    "Vehicle status must not be null"
+            );
+        }
+
+         this.id = id;
          this.vin = vin;
          this.licensePlate = licensePlate;
          this.brand = brand;
@@ -58,7 +97,34 @@ public class Vehicle {
          this.mileageInKilometers = mileageInKilometers;
          this.fuelType = fuelType;
          this.type = type;
+        this.status = status;
      }
+
+    public static Vehicle restore(
+            UUID id,
+            String vin,
+            String licensePlate,
+            String brand,
+            String model,
+            int manufacturingYear,
+            long mileageInKilometers,
+            VehicleType type,
+            FuelType fuelType,
+            VehicleStatus status
+    ) {
+        return new Vehicle(
+                id,
+                vin,
+                licensePlate,
+                brand,
+                model,
+                manufacturingYear,
+                mileageInKilometers,
+                type,
+                fuelType,
+                status
+        );
+    }
 
      public void assign(){
          if(status == VehicleStatus.AVAILABLE){
