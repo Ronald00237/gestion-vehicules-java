@@ -1,5 +1,7 @@
 package com.ronald.fleetops.vehicle.api;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+
+import com.ronald.fleetops.assignment.infrastructure.persistence.jpa.SpringDataVehicleAssignmentJpaRepository;
 import com.ronald.fleetops.vehicle.application.service.VehicleService;
 import com.ronald.fleetops.vehicle.domain.FuelType;
 import com.ronald.fleetops.vehicle.domain.Vehicle;
@@ -23,6 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class VehicleControllerTest {
+
+    @Autowired
+    private SpringDataVehicleAssignmentJpaRepository
+            assignmentJpaRepository;
 
     @Autowired
     private MockMvc mockMvc;

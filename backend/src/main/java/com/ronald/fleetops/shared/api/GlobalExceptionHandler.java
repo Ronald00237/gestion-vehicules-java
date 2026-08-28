@@ -1,4 +1,5 @@
 package com.ronald.fleetops.shared.api;
+import com.ronald.fleetops.driver.application.exception.DriverNotFoundException;
 import com.ronald.fleetops.vehicle.domain.InvalidVehicleStatusTransitionException;
 import com.ronald.fleetops.vehicle.application.exception.DuplicateVehicleVinException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import com.ronald.fleetops.vehicle.application.exception.VehicleNotFoundException;
 import java.util.LinkedHashMap;
+
+import com.ronald.fleetops.driver.application.exception.DuplicateDriverLicenseException;
 import java.util.Map;
     @RestControllerAdvice
     public class GlobalExceptionHandler {
@@ -84,6 +87,41 @@ import java.util.Map;
                 HttpServletRequest request
         ) {
             HttpStatus status = HttpStatus.CONFLICT;
+
+            ApiErrorResponse response = new ApiErrorResponse(
+                    status.value(),
+                    status.getReasonPhrase(),
+                    exception.getMessage(),
+                    request.getRequestURI()
+            );
+
+            return ResponseEntity.status(status).body(response);
+        }
+
+        @ExceptionHandler(DuplicateDriverLicenseException.class)
+        public ResponseEntity<ApiErrorResponse>
+        handleDuplicateDriverLicense(
+                DuplicateDriverLicenseException exception,
+                HttpServletRequest request
+        ) {
+            HttpStatus status = HttpStatus.CONFLICT;
+
+            ApiErrorResponse response = new ApiErrorResponse(
+                    status.value(),
+                    status.getReasonPhrase(),
+                    exception.getMessage(),
+                    request.getRequestURI()
+            );
+
+            return ResponseEntity.status(status).body(response);
+        }
+
+        @ExceptionHandler(DriverNotFoundException.class)
+        public ResponseEntity<ApiErrorResponse> handleDriverNotFound(
+                DriverNotFoundException exception,
+                HttpServletRequest request
+        ) {
+            HttpStatus status = HttpStatus.NOT_FOUND;
 
             ApiErrorResponse response = new ApiErrorResponse(
                     status.value(),
